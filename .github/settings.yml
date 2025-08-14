@@ -34,8 +34,8 @@ rulesets:
           - "~DEFAULT_BRANCH"
         exclude: []
     rules:
-      - type: deletion          # Block branch deletion
-      - type: non_fast_forward  # Block force-push
+      - type: deletion # Block branch deletion
+      - type: non_fast_forward # Block force-push
       - type: required_linear_history
       - type: required_signatures
   - name: collaborators

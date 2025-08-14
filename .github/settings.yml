@@ -3,7 +3,6 @@
 
 repository:
   # Disable unused features
-  has_issues: false
   has_discussions: false
   has_projects: false
   has_wiki: false
@@ -25,7 +24,7 @@ repository:
   enable_vulnerability_alerts: true
 
 rulesets:
-  - name: baseline
+  - name: Baseline
     target: branch
     enforcement: active
     conditions:
@@ -37,8 +36,7 @@ rulesets:
       - type: deletion # Block branch deletion
       - type: non_fast_forward # Block force-push
       - type: required_linear_history
-      - type: required_signatures
-  - name: collaborators
+  - name: Required Status Checks
     target: branch
     enforcement: active
     bypass_actors:
@@ -63,3 +61,13 @@ rulesets:
               context: lint
             - integration_id: 15368
               context: build
+  - name: Enforce Signed Commits
+    target: branch
+    enforcement: active
+    conditions:
+      ref_name:
+        include:
+          - "~DEFAULT_BRANCH"
+        exclude: []
+    rules:
+      - type: required_signatures

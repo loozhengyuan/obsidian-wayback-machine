@@ -24,7 +24,7 @@ repository:
   enable_vulnerability_alerts: true
 
 rulesets:
-  - name: Baseline
+  - name: baseline
     target: branch
     enforcement: active
     conditions:
@@ -36,15 +36,12 @@ rulesets:
       - type: deletion # Block branch deletion
       - type: non_fast_forward # Block force-push
       - type: required_linear_history
-  - name: Required Status Checks
+  - name: require-status-checks
     target: branch
     enforcement: active
     bypass_actors:
-      - actor_type: OrganizationAdmin
-        actor_id: 1
-        bypass_mode: always
-      - actor_type: RepositoryRole
-        actor_id: 5
+      - actor_id: 5
+        actor_type: RepositoryRole
         bypass_mode: always
     conditions:
       ref_name:
@@ -61,9 +58,14 @@ rulesets:
               context: lint
             - integration_id: 15368
               context: build
-  - name: Enforce Signed Commits
+  - name: require-signed-commits
     target: branch
     enforcement: active
+    bypass_actors:
+      # NOTE: Jules does not support signed commits
+      - actor_id: 842251
+        actor_type: Integration
+        bypass_mode: always
     conditions:
       ref_name:
         include:

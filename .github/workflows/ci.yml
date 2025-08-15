@@ -31,15 +31,15 @@ jobs:
 
       - name: Check types
         run: |
-          deno check
+          deno check '**/*.ts'
 
       - name: Check linting
         run: |
-          deno lint
+          deno lint '**/*.ts'
 
       - name: Check formatting
         run: |
-          deno fmt --check
+          deno fmt --check '**/*.ts'
 
   build:
     runs-on: ubuntu-22.04

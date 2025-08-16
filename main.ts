@@ -5,13 +5,12 @@ import { LinkReplacer } from "./replacer.ts";
 // TODO: Expose plugin settings
 export default class WaybackMachinePlugin extends Plugin {
   private isActive: boolean = false;
-  private linkReplacer!: LinkReplacer;
 
   public override onload() {
     const status = this.addStatusBarItem();
 
     const client = new WaybackMachineClient();
-    this.linkReplacer = new LinkReplacer(client);
+    const linkReplacer = new LinkReplacer(client);
 
     // TODO: Handle link paste in Editor mode
     // TODO: Handle highlight and replace
@@ -31,7 +30,7 @@ export default class WaybackMachinePlugin extends Plugin {
 
         if (f instanceof TFile && f.extension === "md") {
           const content = await this.app.vault.read(f);
-          const result = await this.linkReplacer.replaceLinksInContent(
+          const result = await linkReplacer.replaceLinksInContent(
             content,
             status,
           );

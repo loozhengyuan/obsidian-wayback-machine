@@ -3,3 +3,6 @@
 
 # Build files
 *.js
+
+# Setting data files
+*.json

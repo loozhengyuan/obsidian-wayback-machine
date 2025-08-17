@@ -1,13 +1,26 @@
-import { Plugin, TFile } from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting, TFile } from "obsidian";
+
 import { WaybackMachineClient } from "./wayback.ts";
 import { LinkReplacer } from "./replacer.ts";
 
-// TODO: Expose plugin settings
+interface WaybackMachinePluginSettings {
+  debugMode: boolean;
+}
+
+const DEFAULT_SETTINGS: WaybackMachinePluginSettings = {
+  debugMode: false,
+};
+
 export default class WaybackMachinePlugin extends Plugin {
+  public settings: WaybackMachinePluginSettings = DEFAULT_SETTINGS;
   private isActive: boolean = false;
 
-  public override onload() {
+  public override async onload() {
     const status = this.addStatusBarItem();
+
+    await this.loadSettings();
+    const settingTab = new WaybackMachinePluginSettingTab(this.app, this);
+    this.addSettingTab(settingTab);
 
     const client = new WaybackMachineClient();
     const linkReplacer = new LinkReplacer(client);
@@ -51,5 +64,40 @@ export default class WaybackMachinePlugin extends Plugin {
   }
 
   public override onunload() {
+  }
+
+  public async loadSettings() {
+    const userSettings = await this.loadData();
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, userSettings);
+  }
+
+  public async saveSettings() {
+    await this.saveData(this.settings);
+  }
+}
+
+export class WaybackMachinePluginSettingTab extends PluginSettingTab {
+  private plugin: WaybackMachinePlugin;
+
+  public constructor(app: App, plugin: WaybackMachinePlugin) {
+    super(app, plugin);
+    this.plugin = plugin;
+  }
+
+  public display(): void {
+    this.containerEl.empty();
+
+    new Setting(this.containerEl)
+      .setName("Debug mode")
+      .setDesc("Whether to enable debug logs")
+      .addToggle((e) =>
+        e
+          .setValue(this.plugin.settings.debugMode)
+          .onChange(async (v) => {
+            this.plugin.settings.debugMode = v;
+            await this.plugin.saveSettings();
+            this.display();
+          })
+      );
   }
 }

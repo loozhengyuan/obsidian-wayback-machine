@@ -60,14 +60,16 @@ rulesets:
               context: lint
             - integration_id: 15368
               context: build
+  # NOTE: Copilot/Jules are not able to push signed commits yet
+  # so we need to repository admins to be able bypass this
+  # restriction for PRs.
   - name: require-signed-commits
     target: branch
     enforcement: active
     bypass_actors:
-      # NOTE: Jules does not support signed commits
-      - actor_id: 842251
-        actor_type: Integration
-        bypass_mode: always
+      - actor_id: 5
+        actor_type: RepositoryRole
+        bypass_mode: pull_request
     conditions:
       ref_name:
         include:

@@ -1,18 +1,14 @@
-import { WaybackMachineClient } from "./wayback.ts";
+import type { WaybackMachineClient } from "./wayback.ts";
+import { 
+  URL_REGEX, 
+  HOSTNAMES_BLOCKED, 
+  STATUS_MESSAGES,
+  LOG_MESSAGES 
+} from "./constants.ts";
 
-// TODO: Avoid links from matching prematurely?
-export const URL_REGEX = /https?:\/\/[^\s\)>\]]+/g;
-
-export const HOSTNAMES_BLOCKED = [
-  "0.0.0.0",
-  // Localhost
-  "localhost",
-  "127.0.0.1",
-  "::1",
-  // Wayback Machine
-  "web.archive.org",
-];
-
+/**
+ * Interface for status reporting functionality
+ */
 export interface StatusReporter {
   setText(text: string): void;
 }
@@ -27,6 +23,12 @@ export class LinkReplacer {
     this.client = client;
   }
 
+  /**
+   * Replace all HTTP/HTTPS links in the given content with their Wayback Machine URLs
+   * @param content - The text content to process
+   * @param status - Status reporter for progress updates
+   * @returns Promise resolving to the content with replaced links
+   */
   async replaceLinksInContent(
     content: string,
     status: StatusReporter,
@@ -38,25 +40,23 @@ export class LinkReplacer {
 
     let result = content;
     for (const [idx, link] of links.entries()) {
-      status.setText(
-        `Wayback: Replacing ${idx + 1} of ${links.length} link(s)...`,
-      );
+      status.setText(STATUS_MESSAGES.REPLACING(idx + 1, links.length));
 
       const url = new URL(link);
-      if (HOSTNAMES_BLOCKED.includes(url.hostname)) {
-        console.warn(`Ignoring blocked hostname: ${url.hostname}`);
+      if (HOSTNAMES_BLOCKED.includes(url.hostname as typeof HOSTNAMES_BLOCKED[number])) {
+        console.warn(LOG_MESSAGES.IGNORING_BLOCKED_HOSTNAME(url.hostname));
         continue;
       }
 
       const waybackUrl = await this.client.getWaybackUrl(link);
       if (waybackUrl === null) {
-        console.warn(`Detected unarchived link: ${link}`);
+        console.warn(LOG_MESSAGES.UNARCHIVED_LINK_DETECTED(link));
         // TODO: Implement optimistic saving so it can be retrieved in future?
         // await this.client.saveToWayback(link)
         continue;
       }
       if (!waybackUrl) {
-        console.warn("Wayback URL is not null but not truthy either");
+        console.warn(LOG_MESSAGES.WAYBACK_URL_INVALID);
         continue;
       }
       result = result.replaceAll(link, waybackUrl);

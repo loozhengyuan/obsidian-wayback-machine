@@ -1,9 +1,7 @@
-import type { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 import { WaybackMachineClient } from "./wayback.ts";
-import type { LinkReplacer, StatusReporter } from "./replacer.ts";
-import { LinkReplacer } from "./replacer.ts";
-import { STATUS_MESSAGES, LOG_MESSAGES } from "./constants.ts";
+import { LinkReplacer, StatusReporter } from "./replacer.ts";
 
 interface WaybackMachinePluginSettings {
   debugMode: boolean;
@@ -17,7 +15,18 @@ export class WaybackMachinePlugin extends Plugin {
   public settings: WaybackMachinePluginSettings = DEFAULT_SETTINGS;
   private isActive: boolean = false;
   private linkReplacer!: LinkReplacer;
-  private status!: StatusReporter;
+  private status?: StatusReporter;
+
+  /**
+   * Set status text with automatic initialization if needed
+   * @param text - The status text to display
+   */
+  private setStatus(text: string): void {
+    if (!this.status) {
+      this.status = this.addStatusBarItem();
+    }
+    this.status.setText(text);
+  }
 
   public override async onload() {
     this.status = this.addStatusBarItem();
@@ -36,7 +45,32 @@ export class WaybackMachinePlugin extends Plugin {
       id: "replace-current-selection",
       name: "Replace links in current selection",
       editorCallback: async (editor) => {
-        await this.executeReplacement(() => editor.getSelection(), (result) => editor.replaceSelection(result));
+        try {
+          // Prevent duplicate invocations
+          if (this.isActive) {
+            console.warn("Plugin already running, exiting!");
+            return;
+          }
+          this.isActive = true;
+
+          const content = editor.getSelection();
+          if (content) {
+            const status = this.status || this.addStatusBarItem();
+            const result = await this.linkReplacer.replaceLinksInContent(
+              content,
+              status,
+            );
+
+            if (result !== content) {
+              editor.replaceSelection(result);
+            }
+          }
+        } catch (err) {
+          console.error("Error replacing links", err);
+        } finally {
+          this.setStatus("Wayback: Ready");
+          this.isActive = false;
+        }
       },
     });
 
@@ -44,7 +78,32 @@ export class WaybackMachinePlugin extends Plugin {
       id: "replace-current-document",
       name: "Replace links in current document",
       editorCallback: async (editor) => {
-        await this.executeReplacement(() => editor.getValue(), (result) => editor.setValue(result));
+        try {
+          // Prevent duplicate invocations
+          if (this.isActive) {
+            console.warn("Plugin already running, exiting!");
+            return;
+          }
+          this.isActive = true;
+
+          const content = editor.getValue();
+          if (content) {
+            const status = this.status || this.addStatusBarItem();
+            const result = await this.linkReplacer.replaceLinksInContent(
+              content,
+              status,
+            );
+
+            if (result !== content) {
+              editor.setValue(result);
+            }
+          }
+        } catch (err) {
+          console.error("Error replacing links", err);
+        } finally {
+          this.setStatus("Wayback: Ready");
+          this.isActive = false;
+        }
       },
     });
 
@@ -54,7 +113,32 @@ export class WaybackMachinePlugin extends Plugin {
           .setTitle("Replace links in current selection")
           .setIcon("link")
           .onClick(async () => {
-            await this.executeReplacement(() => editor.getSelection(), (result) => editor.replaceSelection(result));
+            try {
+              // Prevent duplicate invocations
+              if (this.isActive) {
+                console.warn("Plugin already running, exiting!");
+                return;
+              }
+              this.isActive = true;
+
+              const content = editor.getSelection();
+              if (content) {
+                const status = this.status || this.addStatusBarItem();
+                const result = await this.linkReplacer.replaceLinksInContent(
+                  content,
+                  status,
+                );
+
+                if (result !== content) {
+                  editor.replaceSelection(result);
+                }
+              }
+            } catch (err) {
+              console.error("Error replacing links", err);
+            } finally {
+              this.setStatus("Wayback: Ready");
+              this.isActive = false;
+            }
           });
       });
 
@@ -63,48 +147,37 @@ export class WaybackMachinePlugin extends Plugin {
           .setTitle("Replace links in current document")
           .setIcon("link")
           .onClick(async () => {
-            await this.executeReplacement(() => editor.getValue(), (result) => editor.setValue(result));
+            try {
+              // Prevent duplicate invocations
+              if (this.isActive) {
+                console.warn("Plugin already running, exiting!");
+                return;
+              }
+              this.isActive = true;
+
+              const content = editor.getValue();
+              if (content) {
+                const status = this.status || this.addStatusBarItem();
+                const result = await this.linkReplacer.replaceLinksInContent(
+                  content,
+                  status,
+                );
+
+                if (result !== content) {
+                  editor.setValue(result);
+                }
+              }
+            } catch (err) {
+              console.error("Error replacing links", err);
+            } finally {
+              this.setStatus("Wayback: Ready");
+              this.isActive = false;
+            }
           });
       });
     }));
 
-    this.status.setText(STATUS_MESSAGES.READY);
-  }
-
-  /**
-   * Execute link replacement with consistent error handling and state management
-   * @param getContent - Function to get the content to process
-   * @param setContent - Function to set the processed content
-   */
-  private async executeReplacement(
-    getContent: () => string,
-    setContent: (content: string) => void
-  ): Promise<void> {
-    try {
-      // Prevent duplicate invocations
-      if (this.isActive) {
-        console.warn(LOG_MESSAGES.PLUGIN_ALREADY_RUNNING);
-        return;
-      }
-      this.isActive = true;
-
-      const content = getContent();
-      if (content) {
-        const result = await this.linkReplacer.replaceLinksInContent(
-          content,
-          this.status,
-        );
-
-        if (result !== content) {
-          setContent(result);
-        }
-      }
-    } catch (err) {
-      console.error(LOG_MESSAGES.ERROR_REPLACING_LINKS, err);
-    } finally {
-      this.status.setText(STATUS_MESSAGES.READY);
-      this.isActive = false;
-    }
+    this.setStatus("Wayback: Ready");
   }
 
   public override onunload() {

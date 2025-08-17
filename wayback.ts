@@ -12,7 +12,9 @@ export class WaybackMachineClient {
       encodeURIComponent(url)
     }`;
     const response = await fetch(apiUrl);
-    console.debug(`Get Wayback Machine link: ${response.status} ${response.statusText}`);
+    console.debug(
+      `Get Wayback Machine link: ${response.status} ${response.statusText}`,
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -30,7 +32,9 @@ export class WaybackMachineClient {
   async saveToWayback(url: string): Promise<void> {
     const saveUrl = `https://web.archive.org/save/${url}`;
     const response = await fetch(saveUrl, { method: "POST" });
-    console.debug(`Save to Wayback Machine: ${response.status} ${response.statusText}`);
+    console.debug(
+      `Save to Wayback Machine: ${response.status} ${response.statusText}`,
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

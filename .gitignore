@@ -1,8 +1,6 @@
 # Environment files
 *.env
 
-# Build files
-*.js
-
-# Setting data files
-*.json
+# Obsidian plugin files
+main.js
+data.json

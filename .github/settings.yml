@@ -61,7 +61,7 @@ rulesets:
             - integration_id: 15368
               context: build
   # NOTE: Copilot/Jules are not able to push signed commits yet
-  # so we need to repository admins to be able bypass this
+  # so we need repository admins to be able bypass this
   # restriction for PRs.
   - name: require-signed-commits
     target: branch

@@ -31,5 +31,6 @@ Before submitting changes, you must ensure all verifications pass.
 
 ## Contribution Guidelines
 
-- **Commit Messages**: All commits should have proper, descriptive commit messages.
-- **Branch Naming**: All pull requests should be created from branches following the `ai/*` naming convention (e.g., `ai/feature-name`, `ai/fix-bug`).
+- **Commit and PR Titles**: Any PR and commit titles must follow [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) conventions.
+- **Commit and PR Body**: Any PR and commit body must be description and informative. Where possible, focus on the WHY instead of the WHAT.
+- **Branch Naming**: Any pushed branches must follow the `<platform>/*` convention. For example, Claude will use `claude/*`, Jules will use `jules/*`, Codex will use `codex/*`.

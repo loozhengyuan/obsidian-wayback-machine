@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, TFile } from "obsidian";
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 import { WaybackMachineClient } from "./wayback.ts";
 import { LinkReplacer } from "./replacer.ts";
@@ -26,38 +26,146 @@ export default class WaybackMachinePlugin extends Plugin {
     const linkReplacer = new LinkReplacer(client);
 
     // TODO: Handle link paste in Editor mode
-    // TODO: Handle highlight and replace
-    // TODO: Handle command trigger
     // TODO: Optional confirmation modal
 
-    this.registerEvent(this.app.vault.on("modify", async (f) => {
-      try {
-        console.debug("Handling 'modify' event");
+    this.addCommand({
+      id: "replace-current-selection",
+      name: "Replace links in current selection",
+      editorCallback: async (editor) => {
+        try {
+          console.debug("Handling 'modify' event");
 
-        // Prevent duplicate invocations
-        if (this.isActive) {
-          console.debug("Plugin already running, exiting!");
-          return;
-        }
-        this.isActive = true;
-
-        if (f instanceof TFile && f.extension === "md") {
-          const content = await this.app.vault.read(f);
-          const result = await linkReplacer.replaceLinksInContent(
-            content,
-            status,
-          );
-
-          if (result !== content) {
-            this.app.vault.modify(f, result);
+          // Prevent duplicate invocations
+          if (this.isActive) {
+            console.debug("Plugin already running, exiting!");
+            return;
           }
+          this.isActive = true;
+
+          const content = editor.getSelection();
+          if (content) {
+            const result = await linkReplacer.replaceLinksInContent(
+              content,
+              status,
+            );
+
+            if (result !== content) {
+              editor.replaceSelection(result);
+            }
+          }
+        } catch (err) {
+          console.error("Error replacing links", err);
+        } finally {
+          status.setText("Wayback: Ready");
+          this.isActive = false;
         }
-      } catch (err) {
-        console.error("Error replacing links", err);
-      } finally {
-        status.setText("Wayback: Ready");
-        this.isActive = false;
-      }
+      },
+    });
+
+    this.addCommand({
+      id: "replace-current-document",
+      name: "Replace links in current document",
+      editorCallback: async (editor) => {
+        try {
+          console.debug("Handling 'modify' event");
+
+          // Prevent duplicate invocations
+          if (this.isActive) {
+            console.debug("Plugin already running, exiting!");
+            return;
+          }
+          this.isActive = true;
+
+          const content = editor.getValue();
+          if (content) {
+            const result = await linkReplacer.replaceLinksInContent(
+              content,
+              status,
+            );
+
+            if (result !== content) {
+              editor.setValue(result);
+            }
+          }
+        } catch (err) {
+          console.error("Error replacing links", err);
+        } finally {
+          status.setText("Wayback: Ready");
+          this.isActive = false;
+        }
+      },
+    });
+
+    this.registerEvent(this.app.workspace.on("editor-menu", (menu, editor) => {
+      menu.addItem((item) => {
+        item
+          .setTitle("Replace links in current selection")
+          .setIcon("link")
+          .onClick(async () => {
+            try {
+              console.debug("Handling 'modify' event");
+
+              // Prevent duplicate invocations
+              if (this.isActive) {
+                console.debug("Plugin already running, exiting!");
+                return;
+              }
+              this.isActive = true;
+
+              const content = editor.getSelection();
+              if (content) {
+                const result = await linkReplacer.replaceLinksInContent(
+                  content,
+                  status,
+                );
+
+                if (result !== content) {
+                  editor.replaceSelection(result);
+                }
+              }
+            } catch (err) {
+              console.error("Error replacing links", err);
+            } finally {
+              status.setText("Wayback: Ready");
+              this.isActive = false;
+            }
+          });
+      });
+
+      menu.addItem((item) => {
+        item
+          .setTitle("Replace links in current document")
+          .setIcon("link")
+          .onClick(async () => {
+            try {
+              console.debug("Handling 'modify' event");
+
+              // Prevent duplicate invocations
+              if (this.isActive) {
+                console.debug("Plugin already running, exiting!");
+                return;
+              }
+              this.isActive = true;
+
+              const content = editor.getValue();
+              if (content) {
+                const result = await linkReplacer.replaceLinksInContent(
+                  content,
+                  status,
+                );
+
+                if (result !== content) {
+                  editor.setValue(result);
+                }
+              }
+            } catch (err) {
+              console.error("Error replacing links", err);
+            } finally {
+              status.setText("Wayback: Ready");
+              this.isActive = false;
+            }
+          });
+      });
     }));
 
     status.setText("Wayback: Ready");

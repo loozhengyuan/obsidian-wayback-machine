@@ -1,7 +1,7 @@
 {
   "id": "wayback-machine",
   "name": "Wayback Machine",
-  "description": "Automatically converts web links in Obsidian to Wayback Machine links.",
+  "description": "Converts web links in Obsidian to Wayback Machine links.",
   "version": "0.1.0",
   "minAppVersion": "0.15.0",
   "author": "Loo Zheng Yuan",

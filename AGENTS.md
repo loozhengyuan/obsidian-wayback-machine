@@ -4,7 +4,7 @@ This document provides a quick-start guide for AI agents. For a general project 
 
 ## Repository Overview
 
-- This repository contains an Obsidian plugin that automatically converts web links into their corresponding Wayback Machine URLs.
+- This repository contains an Obsidian plugin that converts web links into their corresponding Wayback Machine URLs.
 
 ## Tech Stack
 

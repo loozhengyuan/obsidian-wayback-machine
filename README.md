@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/loozhengyuan/obsidian-wayback-machine/actions/workflows/ci.yml/badge.svg)](https://github.com/loozhengyuan/obsidian-wayback-machine/actions/workflows/ci.yml)
 
-Automatically converts web links in Obsidian to Wayback Machine links.
+Converts web links in Obsidian to Wayback Machine links.
 
 ## Installation
 

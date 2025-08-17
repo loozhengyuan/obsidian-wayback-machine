@@ -33,11 +33,9 @@ export default class WaybackMachinePlugin extends Plugin {
       name: "Replace links in current selection",
       editorCallback: async (editor) => {
         try {
-          console.debug("Handling 'modify' event");
-
           // Prevent duplicate invocations
           if (this.isActive) {
-            console.debug("Plugin already running, exiting!");
+            console.warn("Plugin already running, exiting!");
             return;
           }
           this.isActive = true;
@@ -67,11 +65,9 @@ export default class WaybackMachinePlugin extends Plugin {
       name: "Replace links in current document",
       editorCallback: async (editor) => {
         try {
-          console.debug("Handling 'modify' event");
-
           // Prevent duplicate invocations
           if (this.isActive) {
-            console.debug("Plugin already running, exiting!");
+            console.warn("Plugin already running, exiting!");
             return;
           }
           this.isActive = true;
@@ -103,11 +99,9 @@ export default class WaybackMachinePlugin extends Plugin {
           .setIcon("link")
           .onClick(async () => {
             try {
-              console.debug("Handling 'modify' event");
-
               // Prevent duplicate invocations
               if (this.isActive) {
-                console.debug("Plugin already running, exiting!");
+                console.warn("Plugin already running, exiting!");
                 return;
               }
               this.isActive = true;
@@ -138,11 +132,9 @@ export default class WaybackMachinePlugin extends Plugin {
           .setIcon("link")
           .onClick(async () => {
             try {
-              console.debug("Handling 'modify' event");
-
               // Prevent duplicate invocations
               if (this.isActive) {
-                console.debug("Plugin already running, exiting!");
+                console.warn("Plugin already running, exiting!");
                 return;
               }
               this.isActive = true;

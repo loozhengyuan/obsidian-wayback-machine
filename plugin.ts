@@ -87,7 +87,10 @@ export class WaybackMachinePlugin extends Plugin {
   /**
    * Replace links in current selection
    */
-  private async replaceLinksInSelection(editor: Editor, linkReplacer: LinkReplacer) {
+  private async replaceLinksInSelection(
+    editor: Editor,
+    linkReplacer: LinkReplacer,
+  ) {
     try {
       // Prevent duplicate invocations
       if (this.isActive) {
@@ -118,7 +121,10 @@ export class WaybackMachinePlugin extends Plugin {
   /**
    * Replace links in current document
    */
-  private async replaceLinksInDocument(editor: Editor, linkReplacer: LinkReplacer) {
+  private async replaceLinksInDocument(
+    editor: Editor,
+    linkReplacer: LinkReplacer,
+  ) {
     try {
       // Prevent duplicate invocations
       if (this.isActive) {

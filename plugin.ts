@@ -1,7 +1,7 @@
 import { App, Editor, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 import { WaybackMachineClient } from "./wayback.ts";
-import { LinkReplacer, StatusReporter } from "./replacer.ts";
+import { LinkReplacer } from "./replacer.ts";
 
 interface WaybackMachinePluginSettings {
   debugMode: boolean;
@@ -14,8 +14,7 @@ const DEFAULT_SETTINGS: WaybackMachinePluginSettings = {
 export class WaybackMachinePlugin extends Plugin {
   public settings: WaybackMachinePluginSettings = DEFAULT_SETTINGS;
   private isActive: boolean = false;
-  private linkReplacer!: LinkReplacer;
-  private status?: StatusReporter;
+  private status?: HTMLElement;
 
   public override async onload() {
     await this.loadSettings();
@@ -23,7 +22,7 @@ export class WaybackMachinePlugin extends Plugin {
     this.addSettingTab(settingTab);
 
     const client = new WaybackMachineClient();
-    this.linkReplacer = new LinkReplacer(client);
+    const linkReplacer = new LinkReplacer(client);
 
     // TODO: Handle link paste in Editor mode
     // TODO: Optional confirmation modal
@@ -32,7 +31,7 @@ export class WaybackMachinePlugin extends Plugin {
       id: "replace-current-selection",
       name: "Replace links in current selection",
       editorCallback: async (editor) => {
-        await this.replaceLinksInSelection(editor);
+        await this.replaceLinksInSelection(editor, linkReplacer);
       },
     });
 
@@ -40,7 +39,7 @@ export class WaybackMachinePlugin extends Plugin {
       id: "replace-current-document",
       name: "Replace links in current document",
       editorCallback: async (editor) => {
-        await this.replaceLinksInDocument(editor);
+        await this.replaceLinksInDocument(editor, linkReplacer);
       },
     });
 
@@ -50,7 +49,7 @@ export class WaybackMachinePlugin extends Plugin {
           .setTitle("Replace links in current selection")
           .setIcon("link")
           .onClick(async () => {
-            await this.replaceLinksInSelection(editor);
+            await this.replaceLinksInSelection(editor, linkReplacer);
           });
       });
 
@@ -59,7 +58,7 @@ export class WaybackMachinePlugin extends Plugin {
           .setTitle("Replace links in current document")
           .setIcon("link")
           .onClick(async () => {
-            await this.replaceLinksInDocument(editor);
+            await this.replaceLinksInDocument(editor, linkReplacer);
           });
       });
     }));
@@ -88,7 +87,7 @@ export class WaybackMachinePlugin extends Plugin {
   /**
    * Replace links in current selection
    */
-  private async replaceLinksInSelection(editor: Editor) {
+  private async replaceLinksInSelection(editor: Editor, linkReplacer: LinkReplacer) {
     try {
       // Prevent duplicate invocations
       if (this.isActive) {
@@ -99,7 +98,7 @@ export class WaybackMachinePlugin extends Plugin {
 
       const content = editor.getSelection();
       if (content) {
-        const result = await this.linkReplacer.replaceLinksInContent(
+        const result = await linkReplacer.replaceLinksInContent(
           content,
           (text) => this.setStatus(text),
         );
@@ -119,7 +118,7 @@ export class WaybackMachinePlugin extends Plugin {
   /**
    * Replace links in current document
    */
-  private async replaceLinksInDocument(editor: Editor) {
+  private async replaceLinksInDocument(editor: Editor, linkReplacer: LinkReplacer) {
     try {
       // Prevent duplicate invocations
       if (this.isActive) {
@@ -130,7 +129,7 @@ export class WaybackMachinePlugin extends Plugin {
 
       const content = editor.getValue();
       if (content) {
-        const result = await this.linkReplacer.replaceLinksInContent(
+        const result = await linkReplacer.replaceLinksInContent(
           content,
           (text) => this.setStatus(text),
         );

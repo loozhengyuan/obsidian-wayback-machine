@@ -13,10 +13,6 @@ export const HOSTNAMES_BLOCKED = [
   "web.archive.org",
 ];
 
-export interface StatusReporter {
-  setText(text: string): void;
-}
-
 export type StatusCallback = (text: string) => void;
 
 /**

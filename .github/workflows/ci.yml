@@ -35,11 +35,11 @@ jobs:
 
       - name: Check linting
         run: |
-          deno lint '**/*.ts'
+          deno lint
 
       - name: Check formatting
         run: |
-          deno fmt --check '**/*.ts'
+          deno fmt --check
 
   build:
     runs-on: ubuntu-22.04

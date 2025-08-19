@@ -1,9 +1,17 @@
 {
   "tasks": {
-    "build": "deno bundle --external obsidian --format cjs --output main.js main.ts"
+    "build": "deno bundle --external obsidian --platform browser --format cjs --output main.js main.ts"
   },
   "imports": {
     "obsidian": "npm:obsidian@^1.8.7"
+  },
+  "compilerOptions": {
+    "lib": [
+      "es2023",
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable"
+    ]
   },
   "lint": {
     "include": ["**/*.ts"]

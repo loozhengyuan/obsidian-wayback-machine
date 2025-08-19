@@ -13,9 +13,7 @@ export const HOSTNAMES_BLOCKED = [
   "web.archive.org",
 ];
 
-export interface StatusReporter {
-  setText(text: string): void;
-}
+export type StatusCallback = (text: string) => void;
 
 /**
  * Logic to convert hyperlinks to archive web links
@@ -27,9 +25,15 @@ export class LinkReplacer {
     this.client = client;
   }
 
+  /**
+   * Replace all HTTP/HTTPS links in the given content with their Wayback Machine URLs
+   * @param content - The text content to process
+   * @param statusCallback - Callback for progress updates
+   * @returns Promise resolving to the content with replaced links
+   */
   async replaceLinksInContent(
     content: string,
-    status: StatusReporter,
+    statusCallback: StatusCallback,
   ): Promise<string> {
     const links = [...new Set(content.match(URL_REGEX) || [])];
     if (links.length === 0) {
@@ -38,7 +42,7 @@ export class LinkReplacer {
 
     let result = content;
     for (const [idx, link] of links.entries()) {
-      status.setText(
+      statusCallback(
         `Wayback: Replacing ${idx + 1} of ${links.length} link(s)...`,
       );
 

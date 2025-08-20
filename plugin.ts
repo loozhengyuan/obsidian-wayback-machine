@@ -22,7 +22,13 @@ export class WaybackMachinePlugin extends Plugin {
     this.addSettingTab(settingTab);
 
     const client = new WaybackMachineClient();
-    const linkReplacer = new LinkReplacer(client);
+    const linkReplacer = new LinkReplacer(
+      client,
+      {
+        onLinkProcess: (link) =>
+          this.setStatus(`Wayback: Processing link: ${link}`),
+      },
+    );
 
     // TODO: Handle link paste in Editor mode
     // TODO: Optional confirmation modal
@@ -101,11 +107,7 @@ export class WaybackMachinePlugin extends Plugin {
 
       const content = editor.getSelection();
       if (content) {
-        const result = await linkReplacer.replaceLinksInContent(
-          content,
-          (text) => this.setStatus(text),
-        );
-
+        const result = await linkReplacer.replace(content);
         if (result !== content) {
           editor.replaceSelection(result);
         }
@@ -135,11 +137,7 @@ export class WaybackMachinePlugin extends Plugin {
 
       const content = editor.getValue();
       if (content) {
-        const result = await linkReplacer.replaceLinksInContent(
-          content,
-          (text) => this.setStatus(text),
-        );
-
+        const result = await linkReplacer.replace(content);
         if (result !== content) {
           editor.setValue(result);
         }

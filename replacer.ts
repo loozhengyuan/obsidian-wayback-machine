@@ -13,38 +13,42 @@ export const HOSTNAMES_BLOCKED = [
   "web.archive.org",
 ];
 
-export type StatusCallback = (text: string) => void;
+export type LinkProcessCallback = (link: string) => void;
+export type LinkReplaceCallback = (link: string) => void;
+
+export type LinkReplacerOptions = {
+  onLinkProcess?: LinkProcessCallback;
+  onLinkReplace?: LinkReplaceCallback;
+};
 
 /**
  * Logic to convert hyperlinks to archive web links
  */
 export class LinkReplacer {
   private client: WaybackMachineClient;
+  private onLinkProcess?: LinkProcessCallback;
+  private onLinkReplace?: LinkReplaceCallback;
 
-  constructor(client: WaybackMachineClient) {
+  constructor(client: WaybackMachineClient, options?: LinkReplacerOptions) {
     this.client = client;
+    this.onLinkProcess = options?.onLinkProcess;
+    this.onLinkReplace = options?.onLinkReplace;
   }
 
   /**
    * Replace all HTTP/HTTPS links in the given content with their Wayback Machine URLs
    * @param content - The text content to process
-   * @param statusCallback - Callback for progress updates
    * @returns Promise resolving to the content with replaced links
    */
-  async replaceLinksInContent(
-    content: string,
-    statusCallback: StatusCallback,
-  ): Promise<string> {
+  async replace(content: string): Promise<string> {
     const links = [...new Set(content.match(URL_REGEX) || [])];
     if (links.length === 0) {
       return content;
     }
 
     let result = content;
-    for (const [idx, link] of links.entries()) {
-      statusCallback(
-        `Wayback: Replacing ${idx + 1} of ${links.length} link(s)...`,
-      );
+    for (const link of links) {
+      this.onLinkProcess?.(link);
 
       const url = new URL(link);
       if (HOSTNAMES_BLOCKED.includes(url.hostname)) {
@@ -64,6 +68,8 @@ export class LinkReplacer {
         continue;
       }
       result = result.replaceAll(link, waybackUrl);
+
+      this.onLinkReplace?.(link);
     }
 
     return result;

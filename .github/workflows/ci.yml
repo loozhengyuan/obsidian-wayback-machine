@@ -10,9 +10,14 @@ on:
   workflow_dispatch:
     inputs:
       release:
-        description: Triggers a new release and specifies the version bump type
+        description: Release
+        type: boolean
+        required: true
+        default: false
+      release_type:
+        description: Release Type
         type: choice
-        required: false
+        required: true
         default: patch
         options:
           - major
@@ -112,7 +117,7 @@ jobs:
         id: tags
         run: |
           curr="$(git tag --list | sed 's/^v//' | awk '/^[0-9]+\.[0-9]+\.[0-9]+$/' | sort --version-sort | tail -n 1)"
-          next="$(npx --yes semver --increment '${{ inputs.release }}' "${curr:-0.0.0}")"
+          next="$(npx --yes semver --increment '${{ inputs.release_type }}' "${curr:-0.0.0}")"
 
           printf "CURRENT:\t${curr}\n"
           printf "NEXT:\t\t${next}\n"
@@ -121,13 +126,13 @@ jobs:
           echo "next=${next}" >> "$GITHUB_OUTPUT"
 
       - name: Verify next version tag
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release
         run: |
           [ "$(jq -r -c '.version' dist/manifest.json)" = '${{ steps.tags.outputs.next }}' ]
 
       - name: Create release
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ steps.tags.outputs.next }}" --generate-notes --fail-on-no-commits --draft dist/*
+          gh release create "v${{ steps.tags.outputs.next }}" --generate-notes --fail-on-no-commits dist/*

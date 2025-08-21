@@ -1,4 +1,11 @@
-import { App, Editor, Plugin, PluginSettingTab, Setting } from "obsidian";
+import {
+  App,
+  Editor,
+  Notice,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+} from "obsidian";
 
 import { WaybackMachineClient } from "./wayback.ts";
 import { LinkReplacer } from "./replacer.ts";
@@ -138,6 +145,8 @@ export class WaybackMachinePlugin extends Plugin {
           setContent(result);
         }
       }
+
+      new Notice("Successfully replaced links!");
     } catch (err) {
       console.error("Error replacing links", err);
     } finally {

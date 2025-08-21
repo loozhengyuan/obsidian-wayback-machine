@@ -21,6 +21,7 @@ export class WaybackMachineClient {
     }
 
     const data = await response.json();
+    console.debug("Get Wayback Machine link: ", data);
     return data.archived_snapshots?.closest?.url || null;
   }
 

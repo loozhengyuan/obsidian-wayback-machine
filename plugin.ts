@@ -97,27 +97,11 @@ export class WaybackMachinePlugin extends Plugin {
     editor: Editor,
     linkReplacer: LinkReplacer,
   ) {
-    try {
-      // Prevent duplicate invocations
-      if (this.isActive) {
-        console.warn("Plugin already running, exiting!");
-        return;
-      }
-      this.isActive = true;
-
-      const content = editor.getSelection();
-      if (content) {
-        const result = await linkReplacer.replace(content);
-        if (result !== content) {
-          editor.replaceSelection(result);
-        }
-      }
-    } catch (err) {
-      console.error("Error replacing links", err);
-    } finally {
-      this.setStatus("Wayback: Ready");
-      this.isActive = false;
-    }
+    return await this.replaceLinks(
+      linkReplacer,
+      () => editor.getSelection(),
+      (result) => editor.replaceSelection(result),
+    );
   }
 
   /**
@@ -127,6 +111,18 @@ export class WaybackMachinePlugin extends Plugin {
     editor: Editor,
     linkReplacer: LinkReplacer,
   ) {
+    return await this.replaceLinks(
+      linkReplacer,
+      () => editor.getValue(),
+      (result) => editor.setValue(result),
+    );
+  }
+
+  private async replaceLinks(
+    linkReplacer: LinkReplacer,
+    getContent: () => string,
+    setContent: (content: string) => void,
+  ) {
     try {
       // Prevent duplicate invocations
       if (this.isActive) {
@@ -135,11 +131,11 @@ export class WaybackMachinePlugin extends Plugin {
       }
       this.isActive = true;
 
-      const content = editor.getValue();
+      const content = getContent();
       if (content) {
         const result = await linkReplacer.replace(content);
         if (result !== content) {
-          editor.setValue(result);
+          setContent(result);
         }
       }
     } catch (err) {

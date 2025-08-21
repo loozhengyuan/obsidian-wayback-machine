@@ -7,6 +7,17 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Whether to publish a new release and the type of version bump.
+        type: choice
+        required: false
+        default: patch
+        options:
+          - major
+          - minor
+          - patch
 
 defaults:
   run:
@@ -59,3 +70,54 @@ jobs:
       - name: Test build task
         run: |
           deno task build
+
+      - name: Prepare dist artifacts
+        run: |
+          mkdir -p dist
+          mv main.js manifest.json
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v5.0.0
+        with:
+          name: dist
+          path: dist
+
+  release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    needs:
+      - build
+    permissions:
+      contents: write # NOTE: Required to create GitHub releases
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0 # NOTE: Required to fetch ALL tags
+
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v5.0.0
+        with:
+          name: dist
+      
+      - name: Determine current and next tags
+        id: tag
+        run: |
+          curr="$(git tag --list | sed 's/^v//' | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | sort --version-sort | tail -n 1)"
+          next="$(npx --yes semver --increment '${{ inputs.bump }}' "${curr:-0.0.0}")"
+
+          echo "curr=${curr}" >> "$GITHUB_OUTPUT"
+          echo "next=${next}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify next version tag
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        run: |
+          [ "$(jq -r -c '.version' manifest.json)" = '${{ steps.tag.outputs.next }}' ]
+
+      # - name: Create release
+      #   if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     gh release create "v${{ steps.tag.outputs.next }}" --generate-notes --fail-on-no-commits --draft dist/*

@@ -1,6 +1,5 @@
 import { WaybackMachineClient } from "./wayback.ts";
 
-// TODO: Avoid links from matching prematurely?
 export const URL_REGEX = /https?:\/\/[^\s\)>\]]+/g;
 
 export type LinkProcessCallback = (link: string) => void;

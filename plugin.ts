@@ -37,9 +37,6 @@ export class WaybackMachinePlugin extends Plugin {
       },
     );
 
-    // TODO: Handle link paste in Editor mode
-    // TODO: Optional confirmation modal
-
     this.addCommand({
       id: "replace-current-selection",
       name: "Replace links in current selection",

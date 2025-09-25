@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Set up Deno
-        uses: denoland/setup-deno@v2.0.3
+        uses: denoland/setup-deno@2f7698fd116bfedbd1c3cd4119337b5a787ef53a # v2.0.3
         with:
           deno-version: "2.4.3"
 
@@ -65,10 +65,10 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Set up Deno
-        uses: denoland/setup-deno@v2.0.3
+        uses: denoland/setup-deno@2f7698fd116bfedbd1c3cd4119337b5a787ef53a # v2.0.3
         with:
           deno-version: "2.4.3"
 
@@ -82,7 +82,7 @@ jobs:
           mv main.js manifest.json dist/
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: dist
           path: dist/
@@ -99,12 +99,12 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # NOTE: Required to fetch ALL tags
 
       - name: Download dist artifacts
-        uses: actions/download-artifact@v5.0.0
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: dist
           path: dist/

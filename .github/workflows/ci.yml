@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up Deno
-        uses: denoland/setup-deno@390061ada6be77a29ed6544d545349413e1f645c # v2.0.3
+        uses: denoland/setup-deno@ff4860f9d7236f320afa0f82b7e6457384805d05 # v2.0.3
         with:
           deno-version: "2.4.3"
 
@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up Deno
-        uses: denoland/setup-deno@390061ada6be77a29ed6544d545349413e1f645c # v2.0.3
+        uses: denoland/setup-deno@ff4860f9d7236f320afa0f82b7e6457384805d05 # v2.0.3
         with:
           deno-version: "2.4.3"
 
